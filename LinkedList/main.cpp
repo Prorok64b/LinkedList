@@ -11,6 +11,8 @@ int main()
 		my_list->push_back('c');
 		push_front(&my_list, 'm');
 
+		my_list->remove(1);
+
 		std::cout << my_list->at(0) << std::endl;
 		std::cout << my_list->at(1) << std::endl;
 		std::cout << my_list->at(2) << std::endl;

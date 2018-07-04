@@ -25,7 +25,8 @@ private:
 	// Private methods
 private:
 	LinkList<Type>* get_last_node(LinkList<Type>* list) const;
-	Type*			find_node(LinkList<Type>* list, int index, int& counter);
+	LinkList<Type>* get_parent_node(LinkList<Type>* list, int index, int& counter);
+	Type*			find_value(LinkList<Type>* list, int index, int& counter);
 	void			count_nodes(LinkList<Type>* list, int& counter);
 	void			rec_destroy(LinkList<Type>* list);
 };
@@ -62,11 +63,11 @@ template<class Type>
 inline Type LinkList<Type>::at(int index)
 {
 	int counter = 0;
-	Type* node = find_node(this, index, counter);
+	Type* node = find_value(this, index, counter);
 
 	if (!node) return NULL;
-
-	return *node;
+	else if(node)
+		return *node;
 }
 
 template<class Type>
@@ -91,6 +92,21 @@ void LinkList<Type>::push_back(Type value)
 	{
 		last_node->m_pnext_node = new LinkList<Type>();
 		last_node->m_pnext_node->m_value = value;
+	}
+}
+
+template<class Type>
+inline void LinkList<Type>::remove(int index)
+{
+	int counter = 0;
+	LinkList<Type>* parent = get_parent_node(this, index, counter);
+
+	if (!parent) throw("no element with such index");
+	else if (parent)
+	{
+		LinkList<Type>* temp = parent->m_pnext_node;
+		parent->m_pnext_node = parent->m_pnext_node->m_pnext_node;
+		delete temp;
 	}
 }
 
@@ -120,14 +136,28 @@ LinkList<Type>* LinkList<Type>::get_last_node(LinkList<Type>* list) const
 }
 
 template<class Type>
-inline Type* LinkList<Type>::find_node(LinkList<Type>* list, int index, int& counter)
+inline LinkList<Type>* LinkList<Type>::get_parent_node(LinkList<Type>* list, int index, int& counter)
+{
+	if (list && list->m_pnext_node && counter + 1 == index)
+		return list;
+	else if (list->m_pnext_node->m_pnext_node)
+	{
+		counter++;
+		return get_parent_node(list->m_pnext_node, index, counter);
+	}
+
+	return nullptr;
+}
+
+template<class Type>
+inline Type* LinkList<Type>::find_value(LinkList<Type>* list, int index, int& counter)
 {
 	if (list && counter == index)
 		return &(list->m_value);
 	else if (list->m_pnext_node)
 	{
 		counter++;
-		return find_node(list->m_pnext_node, index, counter);
+		return find_value(list->m_pnext_node, index, counter);
 	}
 
 	return nullptr;
