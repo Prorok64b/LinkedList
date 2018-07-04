@@ -6,16 +6,16 @@ class LinkList
 	// Constructors
 public:
 	LinkList();
+	LinkList(Type value, LinkList<Type>* next_node);
 	~LinkList();
 
 	// Public methods
 public:
 	Type at(int index);
-	int  indexOf(Type obj) const;
 	int  length();
 	void push_back(Type value);
-	void push_begin(Type value);
 	void remove(int index);
+	void Release();
 
 	// Private members
 private:
@@ -24,12 +24,18 @@ private:
 
 	// Private methods
 private:
-	LinkList<Type>* get_first_node(LinkList<Type>* list) const;
 	LinkList<Type>* get_last_node(LinkList<Type>* list) const;
 	Type*			find_node(LinkList<Type>* list, int index, int& counter);
 	void			count_nodes(LinkList<Type>* list, int& counter);
+	void			rec_destroy(LinkList<Type>* list);
 };
 
+// Not class methods
+template<class Type>
+void push_front(LinkList<Type>** list, Type value)
+{
+	*list = new LinkList<Type>(value, *list);
+}
 
 // Constructors
 template<typename Type>
@@ -37,6 +43,13 @@ LinkList<Type>::LinkList()
 {
 	m_value = NULL;
 	m_pnext_node = nullptr;
+}
+
+template<class Type>
+inline LinkList<Type>::LinkList(Type value, LinkList<Type>* next_node)
+{
+	m_value = value;
+	m_pnext_node = next_node;
 }
 
 template<typename Type>
@@ -81,6 +94,12 @@ void LinkList<Type>::push_back(Type value)
 	}
 }
 
+template<class Type>
+inline void LinkList<Type>::Release()
+{
+	rec_destroy(this);
+}
+
 // Private methods
 template<typename Type>
 LinkList<Type>* LinkList<Type>::get_last_node(LinkList<Type>* list) const
@@ -123,4 +142,17 @@ void LinkList<Type>::count_nodes(LinkList<Type>* list, int& counter)
 		count_nodes(list->m_pnext_node, counter);
 	}
 	return;
+}
+
+template<class Type>
+inline void LinkList<Type>::rec_destroy(LinkList<Type>* list)
+{
+	if (!list) return;
+
+	if (list->m_pnext_node)
+	{
+		rec_destroy(list->m_pnext_node);
+	}
+
+	delete list;
 }
